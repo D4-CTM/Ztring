@@ -4,14 +4,12 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const string_mod = b.addModule("string", .{
+    _ = b.addModule("string", .{
         .root_source_file = b.path("src/string.zig"),
     });
 
-    b.modules.put("string", string_mod);
-
     const lib_test = b.addTest(.{
-        .root_source_file = "src/string-tests.zig",
+        .root_source_file = b.path("src/string-tests.zig"),
         .target = target,
         .optimize = optimize,
     });
