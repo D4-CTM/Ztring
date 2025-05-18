@@ -1,6 +1,8 @@
 const std = @import("std");
 const allocator = std.mem.Allocator;
 const expect = std.testing.expect;
+const splitIterAny = std.mem.SplitIterator(u8, .any);
+const splitIterSeq = std.mem.SplitIterator(u8, .sequence);
 
 const STRING_ERRORS = error {
     INDEX_OUT_OF_BOUNDS,
@@ -62,7 +64,7 @@ const String = struct {
     }
 
     pub fn getCapacity(self: *String) usize {
-        if (self.str) |str| return str.len;
+        if (self.str) |*str| return str.len;
         return 0;
     }
 
@@ -241,10 +243,95 @@ const String = struct {
         return STRING_ERRORS.STRING_NOT_INITIALIZED;
     }
 
-    /// Compares our string with a string literal
-    pub fn equals(self: *String, compare_str: []const u8) bool {
+    /// Finds first instance of `needle` in the string.
+    pub fn find(self: *String, needle: []const u8) STRING_ERRORS!?usize{
+        if (self.str) |*str| {
+            return std.mem.indexOf(u8, str.*, needle);
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
+    /// Finds last instance of `needle` in the string.
+    pub fn findLast(self: *String, needle: []const u8) STRING_ERRORS!?usize{
+        if (self.str) |*str| {
+            return std.mem.lastIndexOf(u8, str.*, needle);
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
+    pub fn contains(self: *String, needle: []const u8) STRING_ERRORS!bool {
+        if (self.str) |*str| {
+            return std.mem.containsAtLeast(u8, str.*, 1, needle);
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
+    /// Assuming we have a string like: "abc,def||ghi"
+    /// when calling for `split("|,")` will return an
+    /// iterator with `"abc", "def", "", "ghi", null`, in 
+    /// that order as `[]const u8`.
+    ///
+    /// If none of `delimiters` exist in buffer,
+    /// the iterator will return the string and null, in that order.
+    pub fn split(self: *String, delimeter: []const u8) STRING_ERRORS!splitIterAny {
         if (self.str) |str| {
-            return std.mem.eql(u8, str[0..self.length], compare_str);
+           return  std.mem.splitAny(u8, str[0..self.length], delimeter);
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
+    /// Assuming we have a string like: "abc||def||||ghi"
+    /// when calling `splitSequence("||")` will return an
+    /// iterator with `"abc", "def", "", "ghi", null`, in 
+    /// that order as `[]const u8`.
+    ///
+    /// If `delimiter` does not exist in the string,
+    /// the iterator will return the string and null, 
+    /// in that order.
+    pub fn splitSequence(self: *String, delimeter: []const u8) STRING_ERRORS!splitIterSeq {
+        if (self.str) |str| {
+           return std.mem.splitSequence(u8, str.ptr[0..self.length], delimeter);
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
+    /// Split's the string using the `\n` scape key.
+    pub fn getLines(self: *String) STRING_ERRORS!splitIterAny {
+        return self.split("\n");
+    }
+
+    /// Returns the string stored on the pointer.
+    /// Silently fails returning an empty string (`""`) if the pointer is empty.
+    pub fn getStringLiteral(self: *String) []const u8 {
+        if (self.str) |*str| return str.ptr[0..self.length];
+        return "";
+    }
+
+    /// Makes a copy of the current string.
+    pub fn copy(self: *String) STRING_ERRORS!String {
+        if (self.str) |*str| {
+            return String.contentInit(self.alloc, str.*);
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
+    /// Old memory remains, simply changes the length into 0
+    pub fn clear(self: *String) void {
+        self.length = 0;
+    }
+
+    /// Compares our string with a string literal.
+    pub fn equals(self: *String, compare_str: []const u8) bool {
+        if (self.str) |*str| {
+            return std.mem.eql(u8, str.ptr[0..self.length], compare_str);
+        }
+        return false;
+    }
+
+    /// Compare our string with another string.
+    pub fn equalStrings(self: *String, compare_str: String) bool {
+        if (compare_str.str) |*str| {
+            return self.equals(str.ptr[0..compare_str.length]);
         }
         return false;
     }
@@ -307,10 +394,94 @@ test "String slicing" {
     var str: String = try String.contentInit(testAlloc, "HOLA, MUNDO!");
     defer str.deinit();
 
+    try expect(std.mem.eql(u8, str.getStringLiteral(), "HOLA, MUNDO!"));
+
     const substrlit = try str.sliceLiteral(0, 4);
     try expect(std.mem.eql(u8, substrlit, "HOLA"));
 
-    var substr = try str.substring(0, 4);
-    defer substr.deinit();
-    try expect(substr.equals("HOLA"));
+    var strcopy = try str.copy();
+    defer strcopy.deinit();
+    try expect(strcopy.equalStrings(str));
+}
+
+test "String inspection" {
+    const testAlloc = std.testing.allocator;
+    var str = try String.contentInit(testAlloc, "ola");
+    defer str.deinit();
+
+    try expect(try str.contains("hola") == false);
+
+    try str.push_front('h');
+    try expect(try str.contains("hola"));
+    try expect(try str.contains("holaa") == false);
+
+    try str.append( "HOLA");
+    try str.prepend("HOLA hola ");
+    if (try str.find("hola")) |idx| {
+        std.debug.print("first insance of hola: {d}\n", .{idx});
+    }
+
+    if (try str.findLast("hola")) |idx| {
+        std.debug.print("last insance of hola: {d}\n", .{idx});
+    }
+
+    if (try str.find("HOLA")) |idx| {
+        std.debug.print("first insance of hola: {d}\n", .{idx});
+    }
+
+    if (try str.findLast("HOLA")) |idx| {
+        std.debug.print("last insance of hola: {d}\n", .{idx});
+    }
+}
+
+test "String splitting" {
+    const testAlloc = std.testing.allocator;
+    var str = try String.contentInit(testAlloc, "hola|mundo,!!!");
+    defer str.deinit();
+
+    var iters = try str.split("|,");
+    var idx: u8 = 0;
+    _ = &idx;
+    while (iters.next()) |iter| {
+        switch (idx) {
+            0 => try expect(std.mem.eql(u8, iter, "hola")),
+            1 => try expect(std.mem.eql(u8, iter, "mundo")),
+            2 => try expect(std.mem.eql(u8, iter, "!!!")),
+            else => {}
+        }
+        idx += 1;
+    }
+
+    str.clear();
+    try expect(str.getCapacity() != 0);
+
+    try str.append("Hola||mundo||!!!,");
+    var iters2 = try str.splitSequence("||");
+    idx = 0;
+    while (iters2.next()) |iter| {
+        switch (idx) {
+            0 => try expect(std.mem.eql(u8, iter, "Hola")),
+            1 => try expect(std.mem.eql(u8, iter, "mundo")),
+            2 => try expect(std.mem.eql(u8, iter, "!!!,")),
+            else => {}
+        }
+        idx += 1;
+    }
+
+    str.clear();
+    try expect(str.getCapacity() != 0);
+
+    try str.append("Hola\nmundo\n!!!");
+    var iters3 = try str.getLines();
+    idx = 0;
+    while (iters3.next()) |iter| {
+        switch (idx) {
+            0 => try expect(std.mem.eql(u8, iter, "Hola")),
+            1 => try expect(std.mem.eql(u8, iter, "mundo")),
+            2 => try expect(std.mem.eql(u8, iter, "!!!")),
+            else => {}
+        }
+        idx += 1;
+    }
+
 }
