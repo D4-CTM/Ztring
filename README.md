@@ -1,6 +1,40 @@
 # Ztring
 
-Library made for fun, it covers some of the basic usage of strings.
+## How to install
+
+Run the next command:
+```bash
+zig fetch --save git+https://github.com/D4-CTM/Ztring
+```
+
+This will add in your build.zig.zon:
+```zig
+.dependencies = .{ 
+    .string = .{
+        .url = "git+https://github.com/D4-CTM/Ztring#<commit-id>",
+        .hash = "<hash created by zig>",
+    },
+}
+```
+
+Then in your build.zig add:
+```zig
+const string_dep = b.dependency("string", .{
+    .target = target,
+    .optimize = optimize,
+});
+exe.root_module.addImport("string", string_dep.module("string"));
+```
+
+Then you can simply import the library in you main.
+```zig
+const string = @import("string").String;
+```
+
+> [!NOTE]
+> If it doesn't show up try doing a ``zig build``.
+
+## Implemented funcions
 
 | Function names | Description |
 | -------------- | --------------- |
