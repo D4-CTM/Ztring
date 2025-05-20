@@ -5,6 +5,8 @@ const splitIterSeq = std.mem.SplitIterator(u8, .sequence);
 
 pub const STRING_ERRORS = error {
     INDEX_OUT_OF_BOUNDS,
+    /// This error could mean that the string wasn't initialized or
+    /// that it is empty.
     STRING_NOT_INITIALIZED,
     STRING_CANNOT_REALLOC,
 };
@@ -317,6 +319,43 @@ pub const String = struct {
     /// Old memory remains, simply changes the length into 0
     pub fn clear(self: *String) void {
         self.length = 0;
+    }
+
+    /// Removes the white spaces from the beggining.
+    pub fn trimStart(self: *String) STRING_ERRORS!void{
+        if (self.str) |*str| {
+            var idx: usize = 0;
+            while (str.*[idx] == ' ') {
+                idx += 1;
+            }
+            std.mem.copyForwards(u8, str.ptr[0..self.length-idx], str.ptr[idx..self.length]);
+            self.length -= idx;
+            return ;
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
+    /// Removes the white spaces from the end.
+    pub fn trimEnd(self: *String) STRING_ERRORS!void{
+        if (self.str) |*str| {
+            var idx: usize = self.length;
+            while (str.*[idx - 1] == ' ') {
+                idx -= 1;
+            }
+            self.length = idx;
+            return ;
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
+    /// Removes the white spaces from both the beggining and the end.
+    pub fn trim(self: *String) STRING_ERRORS!void{
+        if (self.str) |_| {
+            try self.trimStart();
+            try self.trimEnd();
+            return ;
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
     }
 
     /// Compares our string with a string literal.

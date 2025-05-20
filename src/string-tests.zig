@@ -52,6 +52,24 @@ test "String transformation" {
 
     try str.capitalize();
     try expect(str.equals("HOLA, MUNDO!"));
+
+    try str.prepend("    ");
+    try str.append("    ");
+
+    try str.trimStart();
+    try expect(str.length == 16);
+
+    try str.trimEnd();
+    try expect(str.length == 12);
+
+    try expect(str.equals("HOLA, MUNDO!"));
+
+    try str.prepend("    ");
+    try str.append("    ");
+    try expect(str.length == 20);
+
+    try str.trim();
+    try expect(str.length == 12);
 }
 
 test "String slicing" {

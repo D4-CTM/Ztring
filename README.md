@@ -67,4 +67,7 @@ const string = @import("string").String;
 | split(delimeter: []const u8) | Splits the string based on any char find in the `delimeter`. |
 | splitSequence(delimeter: []const u8) | Splits the string based on the char sequence of `delimeter`. |
 | getLines() | Makes a split using the `\n` char as delimeter |
+| trimStart() | Removes the whitespaces at the beginning of the string. |
+| trimEnd() | Removes the whitespaces at the end of the string. |
+| trim() | Removes the whitespaces at the beginning and the end of the string. |
 
