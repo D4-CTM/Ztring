@@ -1,5 +1,8 @@
 const std = @import("std");
-const String = @import("string.zig").String;
+const Str = @import("string.zig");
+
+const String = Str.String;
+const StrErr = Str.STRING_ERRORS;
 
 const expect = std.testing.expect;
 const expectEqlStr = std.testing.expectEqualStrings;
@@ -87,6 +90,15 @@ test "String slicing" {
     var strcopy = try str.copy();
     defer strcopy.deinit();
     try expect(strcopy.equalStrings(str));
+
+    const strBefore = try str.getBefore(4);
+    try expectEqlStr(strBefore, substrlit);
+
+    const strAfter = try str.getAfter(4);
+    try expectEqlStr(strAfter, ", MUNDO!");
+
+    try std.testing.expectError(StrErr.INDEX_OUT_OF_BOUNDS, str.getAfter(1000));
+    try std.testing.expectError(StrErr.INDEX_OUT_OF_BOUNDS, str.getBefore(1000));
 }
 
 test "String inspection" {

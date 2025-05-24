@@ -57,7 +57,9 @@ const string = @import("string").String;
 | decapitalize() | Decapitalizes the first letter of the current string. |
 | equals([]const u8) | Compares a string with a literal. |
 | equalStrings(*String) | Compares a string with another string |
-| sliceLiteral(start: u8, finish: u8) | Slices the string and returns a slice ([]const u8).
+| sliceLiteral(start: u8, finish: u8) | Slices the string and returns a slice ([]const u8). |
+| getAfter(usize) | Get's the string literal starting from `start` till the end of string. |
+| getBefore(usize) | Get's the string literal starting from position 0 till the `limit`. |
 | substring(start: u8, finish u8) | Slices the string and returns another String with set slice. |
 | copy() | Makes a copy of the current string. |
 | clear() | Set's string length into 0. |

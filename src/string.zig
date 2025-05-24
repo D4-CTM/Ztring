@@ -216,34 +216,6 @@ pub const String = struct {
         return STRING_ERRORS.STRING_NOT_INITIALIZED;
     }
 
-    /// Extract a slice of the string as a char array. 
-    ///
-    /// Starts at 0, finishes at the string length.
-    pub fn sliceLiteral(self: *String, start: usize, finish: usize) STRING_ERRORS![]const u8{
-        if (finish > self.length) {
-            return STRING_ERRORS.INDEX_OUT_OF_BOUNDS;
-        }
-
-        if (self.str) |*str| {
-            return str.ptr[start..finish];
-        }
-        return STRING_ERRORS.STRING_NOT_INITIALIZED;
-    }
-
-    /// Extract a slice of the string as another string object. 
-    ///
-    /// Starts at 0, finishes at the string length.
-    pub fn substring(self: *String, start: usize, finish: usize) STRING_ERRORS!String{
-        if (finish > self.length) {
-            return STRING_ERRORS.INDEX_OUT_OF_BOUNDS;
-        }
-
-        if (self.str) |*str| {
-            return String.contentInit(self.alloc, str.ptr[start..finish]);
-        }
-        return STRING_ERRORS.STRING_NOT_INITIALIZED;
-    }
-
     /// Finds first instance of `needle` in the string.
     pub fn find(self: *String, needle: []const u8) STRING_ERRORS!?usize{
         if (self.str) |*str| {
@@ -332,11 +304,59 @@ pub const String = struct {
         return STRING_ERRORS.STRING_NOT_INITIALIZED;
     }
 
+    /// Extract a slice of the string as another string object. 
+    ///
+    /// Starts at 0, finishes at the string length.
+    pub fn substring(self: *String, start: usize, finish: usize) STRING_ERRORS!String{
+        if (finish > self.length) {
+            return STRING_ERRORS.INDEX_OUT_OF_BOUNDS;
+        }
+
+        if (self.str) |*str| {
+            return String.contentInit(self.alloc, str.ptr[start..finish]);
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
     /// Returns the string stored on the pointer.
     /// Silently fails returning an empty string (`""`) if the pointer is empty.
     pub fn getStringLiteral(self: *String) []const u8 {
         if (self.str) |*str| return str.ptr[0..self.length];
         return "";
+    }
+    
+    /// Get's the string literal starting from ``start`` position till the end.
+    pub fn getAfter(self: *String, start: usize) STRING_ERRORS![]const u8 {
+        if (self.length <= start) return STRING_ERRORS.INDEX_OUT_OF_BOUNDS;
+
+        if (self.str) |*str| {
+           return str.ptr[start..self.length]; 
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
+    /// Get's the string literal starting from position 0 till the ``limit``.
+    pub fn getBefore(self: *String, limit: usize) STRING_ERRORS![]const u8 {
+        if (self.length < limit) return STRING_ERRORS.INDEX_OUT_OF_BOUNDS;
+
+        if (self.str) |*str| {
+           return str.ptr[0..limit]; 
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+    
+    /// Extract a slice of the string as a char array. 
+    ///
+    /// Starts at 0, finishes at the string length.
+    pub fn sliceLiteral(self: *String, start: usize, finish: usize) STRING_ERRORS![]const u8{
+        if (finish > self.length) {
+            return STRING_ERRORS.INDEX_OUT_OF_BOUNDS;
+        }
+
+        if (self.str) |*str| {
+            return str.ptr[start..finish];
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
     }
 
     /// Makes a copy of the current string.
