@@ -1,6 +1,8 @@
 const std = @import("std");
 const String = @import("string.zig").String;
+
 const expect = std.testing.expect;
+const expectEqlStr = std.testing.expectEqualStrings;
 
 test "basic String usage test" {
     const testAlloc = std.testing.allocator;
@@ -117,9 +119,9 @@ test "String splitting" {
     _ = &idx;
     while (iters.next()) |iter| {
         switch (idx) {
-            0 => try expect(std.mem.eql(u8, iter, "hola")),
-            1 => try expect(std.mem.eql(u8, iter, "mundo")),
-            2 => try expect(std.mem.eql(u8, iter, "!!!")),
+            0 => try expectEqlStr(iter, "hola"),
+            1 => try expectEqlStr(iter, "mundo"),
+            2 => try expectEqlStr(iter, "!!!"),
             else => {}
         }
         idx += 1;
@@ -133,9 +135,9 @@ test "String splitting" {
     idx = 0;
     while (iters2.next()) |iter| {
         switch (idx) {
-            0 => try expect(std.mem.eql(u8, iter, "Hola")),
-            1 => try expect(std.mem.eql(u8, iter, "mundo")),
-            2 => try expect(std.mem.eql(u8, iter, "!!!,")),
+            0 => try expectEqlStr(iter, "Hola"),
+            1 => try expectEqlStr(iter, "mundo"),
+            2 => try expectEqlStr(iter, "!!!,"),
             else => {}
         }
         idx += 1;
@@ -149,12 +151,14 @@ test "String splitting" {
     idx = 0;
     while (iters3.next()) |iter| {
         switch (idx) {
-            0 => try expect(std.mem.eql(u8, iter, "Hola")),
-            1 => try expect(std.mem.eql(u8, iter, "mundo")),
-            2 => try expect(std.mem.eql(u8, iter, "!!!")),
+            0 => try expectEqlStr(iter, "Hola"),
+            1 => try expectEqlStr(iter, "mundo"),
+            2 => try expectEqlStr(iter, "!!!"),
             else => {}
         }
         idx += 1;
     }
 
+    try expectEqlStr("Hola", try str.forewardGetUntil("\n"));
+    try expectEqlStr("!!!", try str.backwardsGetUntil("\n"));
 }

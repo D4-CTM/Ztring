@@ -87,7 +87,7 @@ pub const String = struct {
         return STRING_ERRORS.STRING_NOT_INITIALIZED;
     }
 
-    /// Add's a single character at the beggining of the string.
+    /// Add's a single character at the beginning of the string.
     ///
     /// Might trigger a resize by 1, depending on the current capacity.
     pub fn push_front(self: *String, char: u8) STRING_ERRORS!void {
@@ -301,6 +301,37 @@ pub const String = struct {
         return self.split("\n");
     }
 
+    /// Get's string value until the first instance of ``delimeter``,
+    /// starting from the beginning of the string.
+    ///
+    /// If we had a string like: "Hello world!" and we called for:
+    /// getUntil(" "); our output should be simply: "Hello".
+    /// If the ``delimeter`` wasn't found it will return the whole string.
+    pub fn forewardGetUntil(self: *String, delimeter: []const u8) STRING_ERRORS![]const u8 {
+        if (self.str) |*str| {
+            const idx = try self.find(delimeter) orelse self.length;
+            return str.ptr[0..idx];
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
+    /// Get's string value until the first instance of ``delimeter``,
+    /// starting from the end of the string.
+    ///
+    /// If we had a string like: "Hello world!" and we called for:
+    /// getUntil(" "); our output should be simply: "world!".
+    /// If the ``delimeter`` wasn't found it will return the whole string.
+    pub fn backwardsGetUntil(self: *String, delimeter: []const u8) STRING_ERRORS![]const u8 {
+        if (self.str) |*str| {
+            var idx = try self.findLast(delimeter) orelse 0;
+            
+            if (idx > 0) idx += 1;
+
+            return str.ptr[idx..self.length];
+        }
+        return STRING_ERRORS.STRING_NOT_INITIALIZED;
+    }
+
     /// Returns the string stored on the pointer.
     /// Silently fails returning an empty string (`""`) if the pointer is empty.
     pub fn getStringLiteral(self: *String) []const u8 {
@@ -321,7 +352,7 @@ pub const String = struct {
         self.length = 0;
     }
 
-    /// Removes the white spaces from the beggining.
+    /// Removes the white spaces from the beginning.
     pub fn trimStart(self: *String) STRING_ERRORS!void{
         if (self.str) |*str| {
             var idx: usize = 0;
@@ -348,7 +379,7 @@ pub const String = struct {
         return STRING_ERRORS.STRING_NOT_INITIALIZED;
     }
 
-    /// Removes the white spaces from both the beggining and the end.
+    /// Removes the white spaces from both the beginning and the end.
     pub fn trim(self: *String) STRING_ERRORS!void{
         if (self.str) |_| {
             try self.trimStart();
