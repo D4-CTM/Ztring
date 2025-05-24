@@ -159,6 +159,6 @@ test "String splitting" {
         idx += 1;
     }
 
-    try expectEqlStr("Hola", try str.forewardGetUntil("\n"));
+    try expectEqlStr("Hola", try str.forwardGetUntil("\n"));
     try expectEqlStr("!!!", try str.backwardsGetUntil("\n"));
 }

@@ -70,6 +70,6 @@ const string = @import("string").String;
 | trimStart() | Removes the whitespaces at the beginning of the string. |
 | trimEnd() | Removes the whitespaces at the end of the string. |
 | trim() | Removes the whitespaces at the beginning and the end of the string. |
-| forewardGetUntil(delimeter: []const u8) | Return's the value of the string from the beginning until it find's `delimeter`. |
+| forwardGetUntil(delimeter: []const u8) | Return's the value of the string from the beginning until it find's `delimeter`. |
 | backwardsGetUntil(delimeter: []const u8) | Return's the value of the string from the end until it find's `delimeter`. |
 

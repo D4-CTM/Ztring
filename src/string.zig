@@ -307,7 +307,7 @@ pub const String = struct {
     /// If we had a string like: "Hello world!" and we called for:
     /// getUntil(" "); our output should be simply: "Hello".
     /// If the ``delimeter`` wasn't found it will return the whole string.
-    pub fn forewardGetUntil(self: *String, delimeter: []const u8) STRING_ERRORS![]const u8 {
+    pub fn forwardGetUntil(self: *String, delimeter: []const u8) STRING_ERRORS![]const u8 {
         if (self.str) |*str| {
             const idx = try self.find(delimeter) orelse self.length;
             return str.ptr[0..idx];
