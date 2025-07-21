@@ -1,7 +1,7 @@
 const std = @import("std");
 const allocator = std.mem.Allocator;
-const splitIterAny = std.mem.SplitIterator(u8, .any);
-const splitIterSeq = std.mem.SplitIterator(u8, .sequence);
+pub const splitIterAny = std.mem.SplitIterator(u8, .any);
+pub const splitIterSeq = std.mem.SplitIterator(u8, .sequence);
 
 pub const STRING_ERRORS = error {
     INDEX_OUT_OF_BOUNDS,
