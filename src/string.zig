@@ -75,7 +75,7 @@ pub const String = struct {
         const new_str_len = add_str.len;
         const new_len = self.length + new_str_len;
         if (str_capacity < new_len) {
-            _ = self.resize(@max(str_capacity*2, new_len)) catch |err| return err;
+            _ = try self.resize(@max(str_capacity*2, new_len));
         }
 
         if (self.str) |*str| {
@@ -93,7 +93,7 @@ pub const String = struct {
     pub fn push_front(self: *String, char: u8) STRING_ERRORS!void {
         const str_len = self.length;
         if (str_len == self.getCapacity()) {
-            _ = self.resize(str_len + 1) catch |err| return err;
+            _ = try self.resize(str_len + 1);
         }
 
         if (self.str) |*str| {
@@ -113,7 +113,7 @@ pub const String = struct {
         const str_capacity = self.getCapacity();
         const new_length = self.length + add_str.len;
         if (str_capacity < new_length) {
-            _ = self.resize(@max(str_capacity*2, new_length)) catch |err| return err;
+            _ = try self.resize(@max(str_capacity*2, new_length));
         }
 
         if (self.str) |*str| {
@@ -129,7 +129,7 @@ pub const String = struct {
     /// Might trigger a resize by 1, depending on the current capacity.
     pub fn push_back(self: *String, char: u8) STRING_ERRORS!void {
         if (self.length == self.getCapacity()) {
-            _ = self.resize(self.length + 1) catch |err| return err;
+            _ = try self.resize(self.length + 1);
         }
 
         if (self.str) |*str| {
